@@ -1,0 +1,1700 @@
+openapi: 3.0.3
+info:
+  title: docassemble API
+  description: API for docassemble, a free, open-source expert system for guided interviews and document assembly.
+  version: 1.0.0
+servers:
+  - url: http://localhost/api
+security:
+  - ApiKeyAuth: []
+paths:
+  /user/new:
+    post:
+      summary: Create a new user
+      description: Creates a user with a given e-mail address and password.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+                username:
+                  type: string
+                  description: The user's e-mail address.
+                password:
+                  type: string
+                  description: The user's password. If a password is not supplied, a random password will be generated.
+                privileges:
+                  oneOf:
+                    - type: string
+                    - type: array
+                      items:
+                        type: string
+                  description: A JSON array of user privileges (e.g., ['developer', 'trainer']), or a string containing a single privilege (e.g., 'advocate'). If not specified, the new user will have a single privilege, user.
+                first_name:
+                  type: string
+                  description: The user's first name.
+                last_name:
+                  type: string
+                  description: The user's last name.
+                country:
+                  type: string
+                  description: The user's country code (e.g., US).
+                subdivisionfirst:
+                  type: string
+                  description: The user's state.
+                subdivisionsecond:
+                  type: string
+                  description: The user's county.
+                subdivisionthird:
+                  type: string
+                  description: The user's municipality.
+                organization:
+                  type: string
+                  description: The user's organization
+                timezone:
+                  type: string
+                  description: The user's time zone (e.g. 'America/New_York').
+                language:
+                  type: string
+                  description: The user's language code (e.g., en).
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: integer
+                    description: The user ID of the new user.
+                  password:
+                    type: string
+                    description: The password of the new user.
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+  /session/list:
+    get:
+      summary: Get list of interview sessions
+      description: Returns a list of the user's interview sessions.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        session:
+                          type: string
+                        i:
+                          type: string
+        '403':
+          description: Access Denied
+  /package:
+    get:
+      summary: Get package information
+      description: Returns information about a package on the docassemble server.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: The name of the package.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '403':
+          description: Access Denied
+        '404':
+          description: Not Found
+  /package/update:
+    post:
+      summary: Update a package
+      description: Updates a package from the repository.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+                name:
+                  type: string
+                  description: The name of the package.
+                github:
+                  type: string
+                  description: The GitHub URL of the package.
+                branch:
+                  type: string
+                  description: The branch to use.
+                pypi:
+                  type: string
+                  description: The PyPI package name.
+                zip:
+                  type: string
+                  description: URL to a zip file.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  task_id:
+                    type: string
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+  /package/delete:
+    delete:
+      summary: Delete a package
+      description: Deletes a package from the docassemble server.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: The name of the package.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  task_id:
+                    type: string
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+  /task_status:
+    get:
+      summary: Get task status
+      description: Returns the status of a background task.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+        - name: task_id
+          in: query
+          description: The ID of the task.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '403':
+          description: Access Denied
+        '404':
+          description: Not Found
+  /config:
+    get:
+      summary: Get server configuration
+      description: Returns the server configuration.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '403':
+          description: Access Denied
+    post:
+      summary: Set server configuration
+      description: Sets the server configuration.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+  /dispatch_list:
+    get:
+      summary: Get dispatch list
+      description: Returns a list of dispatch routes.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dispatch:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                        val:
+                          type: string
+        '403':
+          description: Access Denied
+  /supervisor_log:
+    get:
+      summary: Get supervisor log
+      description: Returns the supervisor log.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+        '403':
+          description: Access Denied
+  /clear_cache:
+    post:
+      summary: Clear server cache
+      description: Clears the server cache.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+        '403':
+          description: Access Denied
+  /restart:
+    post:
+      summary: Restart server
+      description: Restarts the server.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+        '403':
+          description: Access Denied
+  /user_invite:
+    post:
+      summary: Invite a new user
+      description: Creates one or more invitations for new users to register with a given privilege.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+                email_addresses:
+                  oneOf:
+                    - type: string
+                    - type: array
+                      items:
+                        type: string
+                  description: A single e-mail address or a JSON array of e-mail addresses.
+                privilege:
+                  type: string
+                  description: A single privilege (e.g., user, customer). The default privilege is user.
+                send_emails:
+                  type: integer
+                  description: Set this to 0 if you do not want e-mail invitations to be sent.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      description: One of the e-mail addresses you provided in email_addresses.
+                    invitation_sent:
+                      type: boolean
+                      description: This is False if there was an error when sending the e-mail invitation, and is otherwise True.
+                    url:
+                      type: string
+                      description: The invitation URL for the end user.
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+  /user_list:
+    get:
+      summary: List of users
+      description: Provides a list of registered users on the system. Since the number of users may be too long to retrieve in a single API call, pagination is used.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+        - name: include_inactive
+          in: query
+          description: Set to 1 if inactive users should be included in the list.
+          schema:
+            type: integer
+        - name: next_id
+          in: query
+          description: The ID that can be provided to retrieve the next page of results.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        active:
+                          type: boolean
+                          description: Whether the user is active. This is only included if the include_inactive parameter is set.
+                        country:
+                          type: string
+                          description: User's country code.
+                        email:
+                          type: string
+                          description: User's e-mail address.
+                        first_name:
+                          type: string
+                          description: User's first name.
+                        id:
+                          type: integer
+                          description: The integer ID of the user.
+                        language:
+                          type: string
+                          description: User's language code.
+                        last_name:
+                          type: string
+                          description: User's last name.
+                        organization:
+                          type: string
+                          description: User's organization.
+                        privileges:
+                          type: array
+                          items:
+                            type: string
+                          description: List of the user's privileges (e.g., 'admin', 'developer').
+                        subdivisionfirst:
+                          type: string
+                          description: User's state.
+                        subdivisionsecond:
+                          type: string
+                          description: User's county.
+                        subdivisionthird:
+                          type: string
+                          description: User's municipality.
+                        timezone:
+                          type: string
+                          description: User's time zone (e.g. 'America/New_York').
+                  next_id:
+                    type: string
+                    description: The ID that can be provided to retrieve the next page of results.
+                    nullable: true
+        '403':
+          description: Access Denied
+  /user_info:
+    get:
+      summary: Retrieve user information by username
+      description: Provides information about the user with the given username.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+        - name: username
+          in: query
+          description: The e-mail address of the user.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  active:
+                    type: boolean
+                    description: Whether the user is active.
+                  country:
+                    type: string
+                    description: User's country code.
+                  email:
+                    type: string
+                    description: User's e-mail address.
+                  first_name:
+                    type: string
+                    description: User's first name.
+                  id:
+                    type: integer
+                    description: The integer ID of the user.
+                  language:
+                    type: string
+                    description: User's language code.
+                  last_name:
+                    type: string
+                    description: User's last name.
+                  organization:
+                    type: string
+                    description: User's organization.
+                  privileges:
+                    type: array
+                    items:
+                      type: string
+                    description: List of the user's privileges (e.g., 'admin', 'developer').
+                  subdivisionfirst:
+                    type: string
+                    description: User's state.
+                  subdivisionsecond:
+                    type: string
+                    description: User's county.
+                  subdivisionthird:
+                    type: string
+                    description: User's municipality.
+                  timezone:
+                    type: string
+                    description: User's time zone (e.g. 'America/New_York').
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+        '404':
+          description: User not found
+  /user:
+    get:
+      summary: Retrieve information about the user
+      description: Provides information about the user who is the owner of the API key.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+    patch:
+      summary: Set information about the user
+      description: Sets information the user who is the owner of the API key.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+                first_name:
+                  type: string
+                  description: The user's first name.
+                last_name:
+                  type: string
+                  description: The user's last name.
+                country:
+                  type: string
+                  description: The user's country code (e.g., US).
+                subdivisionfirst:
+                  type: string
+                  description: The user's state.
+                subdivisionsecond:
+                  type: string
+                  description: The user's county.
+                subdivisionthird:
+                  type: string
+                  description: The user's municipality.
+                organization:
+                  type: string
+                  description: The user's organization
+                timezone:
+                  type: string
+                  description: The user's time zone (e.g. 'America/New_York').
+                language:
+                  type: string
+                  description: The user's language code (e.g., en).
+                password:
+                  type: string
+                  description: The user's new password.
+                old_password:
+                  type: string
+                  description: The user's old password.
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+  /user/{user_id}:
+    get:
+      summary: Information about a given user
+      description: Provides information about the user with the given user ID.
+      parameters:
+        - name: user_id
+          in: path
+          description: The ID of the user to retrieve.
+          required: true
+          schema:
+            type: integer
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+        '404':
+          description: User not found
+    delete:
+      summary: Make a user inactive
+      description: Makes a user account inactive, so that the user can no longer log in, or deletes the account entirely.
+      parameters:
+        - name: user_id
+          in: path
+          description: The ID of the user to delete.
+          required: true
+          schema:
+            type: integer
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+        - name: remove
+          in: query
+          description: Set this to 'account' if you want to remove the user’s account entirely.
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+        '404':
+          description: User not found
+    patch:
+      summary: Set information about a user
+      description: Sets information about a user.
+      parameters:
+        - name: user_id
+          in: path
+          description: The ID of the user to update.
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+                first_name:
+                  type: string
+                  description: The user's first name.
+                last_name:
+                  type: string
+                  description: The user's last name.
+                country:
+                  type: string
+                  description: The user's country code (e.g., US).
+                subdivisionfirst:
+                  type: string
+                  description: The user's state.
+                subdivisionsecond:
+                  type: string
+                  description: The user's county.
+                subdivisionthird:
+                  type: string
+                  description: The user's municipality.
+                organization:
+                  type: string
+                  description: The user's organization
+                timezone:
+                  type: string
+                  description: The user's time zone (e.g. 'America/New_York').
+                language:
+                  type: string
+                  description: The user's language code (e.g., en).
+                password:
+                  type: string
+                  description: The user's new password.
+                old_password:
+                  type: string
+                  description: The user's old password.
+                active:
+                  type: boolean
+                  description: Whether the user should be active or inactive.
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+        '404':
+          description: User not found
+  /fields:
+    post:
+      summary: Extract fields from a template file
+      description: Returns information about the field names used in a PDF, DOCX, or Markdown file.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+                format:
+                  type: string
+                  description: The desired output format. The default is json.
+                template:
+                  type: string
+                  format: binary
+                  description: A template file in PDF or DOCX format.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fields:
+                    type: array
+                    items:
+                      type: string
+                  default_values:
+                    type: object
+                  types:
+                    type: object
+                  locations:
+                    type: object
+            text/yaml:
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+  /privileges:
+    get:
+      summary: List available privileges
+      description: Returns a list of names of privileges that exist in the system.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '403':
+          description: Access Denied
+    post:
+      summary: Add a role to the list of available privileges
+      description: Given a role name, adds the name to the list of available privileges.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+                privilege:
+                  type: string
+                  description: The name of the privilege to be added to the list.
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+  /user/{user_id}/privileges:
+    post:
+      summary: Give a user a privilege
+      description: Give a user a privilege that the user with the given user_id does not already have.
+      parameters:
+        - name: user_id
+          in: path
+          description: The ID of the user to give the privilege to.
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+                privilege:
+                  type: string
+                  description: The name of the privilege to be given to the user.
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+        '404':
+          description: User not found
+    delete:
+      summary: Take a privilege away from a user
+      description: Take away a privilege that the user with the given user_id has.
+      parameters:
+        - name: user_id
+          in: path
+          description: The ID of the user to take the privilege from.
+          required: true
+          schema:
+            type: integer
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+        - name: privilege
+          in: query
+          description: The name of the privilege to be taken away from the user.
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+        '404':
+          description: User not found
+  /interviews:
+    get:
+      summary: List interview sessions on the system
+      description: Provides a filterable list of interview sessions that are stored on the system.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+        - name: secret
+          in: query
+          description: Set to the user’s secret if you want to be able to access information about interview sessions that may be encrypted.
+          schema:
+            type: string
+        - name: i
+          in: query
+          description: Set to an interview filename if you want to select only those interview sessions with the given interview filename.
+          schema:
+            type: string
+        - name: session
+          in: query
+          description: Set to a session ID if you want to select only the interview session with the given session ID.
+          schema:
+            type: string
+        - name: query
+          in: query
+          description: Set to a session query string if you want to filter the list of sessions by criteria other than interview filename and session ID.
+          schema:
+            type: string
+        - name: tag
+          in: query
+          description: Set to a tag if you want to select only those interview sessions with the given tag.
+          schema:
+            type: string
+        - name: include_dictionary
+          in: query
+          description: Set to 1 if you want a JSON version of the interview answers to be returned.
+          schema:
+            type: integer
+        - name: next_id
+          in: query
+          description: The ID that can be provided to retrieve the next page of results.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Interview'
+                  next_id:
+                    type: string
+                    description: The ID that can be provided to retrieve the next page of results.
+                    nullable: true
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+    delete:
+      summary: Delete interview sessions on the system
+      description: Deletes interview sessions on the server.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+        - name: i
+          in: query
+          description: Set to an interview filename if you want to delete only those interview sessions with the given interview filename.
+          schema:
+            type: string
+        - name: session
+          in: query
+          description: Set to a session ID if you want to delete only the interview session with the given session ID.
+          schema:
+            type: string
+        - name: query
+          in: query
+          description: Set to a session query string if you want to select a list of sessions to delete by criteria other than interview filename and session ID.
+          schema:
+            type: string
+        - name: tag
+          in: query
+          description: Set to a tag if you want to delete only those interview sessions with the given tag.
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+  /user/interviews:
+    get:
+      summary: List interview sessions of the user
+      description: Provides a filterable list of interview sessions stored on the system where the owner of the API is associated with the session.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+        - name: secret
+          in: query
+          description: Set to the user’s secret if you want to be able to access information about interview sessions that may be encrypted.
+          schema:
+            type: string
+        - name: i
+          in: query
+          description: Set to an interview filename if you want to select only those interview sessions with the given interview filename.
+          schema:
+            type: string
+        - name: session
+          in: query
+          description: Set to a session ID if you want to select only the interview session with the given session ID.
+          schema:
+            type: string
+        - name: query
+          in: query
+          description: Set to a session query string if you want to filter the list of sessions by criteria other than interview filename and session ID.
+          schema:
+            type: string
+        - name: tag
+          in: query
+          description: Set to a tag if you want to select only those interview sessions with the given tag.
+          schema:
+            type: string
+        - name: include_dictionary
+          in: query
+          description: Set to 1 if you want a JSON version of the interview answers to be returned.
+          schema:
+            type: integer
+        - name: next_id
+          in: query
+          description: The ID that can be provided to retrieve the next page of results.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Interview'
+                  next_id:
+                    type: string
+                    description: The ID that can be provided to retrieve the next page of results.
+                    nullable: true
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+    delete:
+      summary: Delete interview sessions of the user
+      description: Deletes interview sessions stored on the system that were started by the owner of the API key.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+        - name: i
+          in: query
+          description: Set to an interview filename if you want to delete only those interview sessions with the given interview filename.
+          schema:
+            type: string
+        - name: session
+          in: query
+          description: Set to a session ID if you want to delete only the interview session with the given session ID.
+          schema:
+            type: string
+        - name: query
+          in: query
+          description: Set to a session query string if you want to select a list of sessions to delete by criteria other than interview filename and session ID.
+          schema:
+            type: string
+        - name: tag
+          in: query
+          description: Set to a tag if you want to delete only those interview sessions with the given tag.
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+  /user/{user_id}/interviews:
+    get:
+      summary: List interview sessions of another user
+      description: Provides a filterable list of interview sessions stored on the system where the user with the given user ID started the interview.
+      parameters:
+        - name: user_id
+          in: path
+          description: The ID of the user to retrieve interviews for.
+          required: true
+          schema:
+            type: integer
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+        - name: i
+          in: query
+          description: Set to an interview filename if you want to select only those interview sessions with the given interview filename.
+          schema:
+            type: string
+        - name: session
+          in: query
+          description: Set to a session ID if you want to select only the interview session with the given session ID.
+          schema:
+            type: string
+        - name: query
+          in: query
+          description: Set to a session query string if you want to filter the list of sessions by criteria other than interview filename and session ID.
+          schema:
+            type: string
+        - name: tag
+          in: query
+          description: Set to a tag if you want to select only those interview sessions with the given tag.
+          schema:
+            type: string
+        - name: include_dictionary
+          in: query
+          description: Set to 1 if you want a JSON version of the interview answers to be returned.
+          schema:
+            type: integer
+        - name: next_id
+          in: query
+          description: The ID that can be provided to retrieve the next page of results.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Interview'
+                  next_id:
+                    type: string
+                    description: The ID that can be provided to retrieve the next page of results.
+                    nullable: true
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+    delete:
+      summary: Delete interview sessions of another user
+      description: Deletes interview sessions belonging to a particular user.
+      parameters:
+        - name: user_id
+          in: path
+          description: The ID of the user to delete interviews for.
+          required: true
+          schema:
+            type: integer
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+        - name: i
+          in: query
+          description: Set to an interview filename if you want to delete only those interview sessions with the given interview filename.
+          schema:
+            type: string
+        - name: session
+          in: query
+          description: Set to a session ID if you want to delete only the interview session with the given session ID.
+          schema:
+            type: string
+        - name: query
+          in: query
+          description: Set to a session query string if you want to select a list of sessions to delete by criteria other than interview filename and session ID.
+          schema:
+            type: string
+        - name: tag
+          in: query
+          description: Set to a tag if you want to delete only those interview sessions with the given tag.
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+  /list:
+    get:
+      summary: Get a list of advertised interviews
+      description: Provides a list of interviews advertised by the system through the dispatch configuration directive.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+        - name: tag
+          in: query
+          description: If set, the list of interviews is limited to those that have the given tag.
+          schema:
+            type: string
+        - name: absolute_urls
+          in: query
+          description: If 0, the link URL returned will be relative.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    filename:
+                      type: string
+                      description: The filename of the interview.
+                    link:
+                      type: string
+                      description: A URL path that can be used to start the interview.
+                    package:
+                      type: string
+                      description: The package in which the interview resides.
+                    status_class:
+                      type: string
+                      description: Usually null, but will be set to dainterviewhaserror if the interview cannot be loaded.
+                    subtitle:
+                      type: string
+                      description: The subtitle of the interview.
+                    subtitle_class:
+                      type: string
+                      description: Usually null, but will be set to invisible if the interview cannot be loaded.
+                    tags:
+                      type: array
+                      items:
+                        type: string
+                    title:
+                      type: string
+                      description: The title of the interview.
+        '403':
+          description: Access Denied
+  /secret:
+    get:
+      summary: Obtain a decryption key for a user
+      description: Given a username and password, provides a key that can be used for decrypting the user’s stored interview answers.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+        - name: username
+          in: query
+          description: The user name of the user whose secret you wish to retrieve.
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          description: The password of the user whose secret you wish to retrieve.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+                description: The decryption key.
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+  /login_url:
+    post:
+      summary: Obtain a temporary URL for logging a user in
+      description: Returns a temporary URL, to which a user can be redirected, which will log the user in without the user needing to enter a username or password.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+                username:
+                  type: string
+                  description: The user name of the user.
+                password:
+                  type: string
+                  description: The password of the user.
+                i:
+                  type: string
+                  description: The filename of an interview to which the user will be redirected after they log in.
+                session:
+                  type: string
+                  description: The session ID for the interview session.
+                resume_existing:
+                  type: integer
+                  description: Set this to 1 if you want the user to resume an existing session in that interview.
+                expire:
+                  type: integer
+                  description: The number of seconds after which the URL will expire.
+                url_args:
+                  type: object
+                  description: A JSON object containing additional URL arguments.
+                next:
+                  type: string
+                  description: The page to which the user will be directed after login.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+                format: uri
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+  /resume_url:
+    post:
+      summary: Obtain a redirect URL for an existing session
+      description: Returns a temporary URL, to which a user can be redirected, which will cause the user to resume an existing interview session.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+                i:
+                  type: string
+                  description: The filename of an interview to which the user will be redirected after they log in.
+                session:
+                  type: string
+                  description: The session ID of the interview session to which the user should be redirected.
+                expire:
+                  type: integer
+                  description: The number of seconds after which the URL will expire.
+                one_time:
+                  type: integer
+                  description: If set to 1, the URL will expire after being used once.
+                url_args:
+                  type: object
+                  description: A JSON object containing additional URL arguments.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+                format: uri
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+  /temp_url:
+    get:
+      summary: Obtain a general-purpose redirect URL
+      description: Given any URL, returns a URL that will respond with a 302 redirect to the given URL.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+        - name: url
+          in: query
+          description: The URL to which you want the user to be redirected.
+          required: true
+          schema:
+            type: string
+        - name: expire
+          in: query
+          description: The number of seconds after which the URL should expire.
+          schema:
+            type: integer
+        - name: one_time
+          in: query
+          description: If set to 1, the URL will expire after being used once.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+                format: uri
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+  /session/new:
+    get:
+      summary: Start an interview
+      description: Starts a new session for a given interview and returns the ID of the session.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+        - name: i
+          in: query
+          description: The filename of the interview.
+          required: true
+          schema:
+            type: string
+        - name: secret
+          in: query
+          description: The encryption key to use with the interview.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  i:
+                    type: string
+                    description: The filename of the interview.
+                  session:
+                    type: string
+                    description: The session ID for the new interview session.
+                  encrypted:
+                    type: boolean
+                    description: Whether the interview is using server-side encryption.
+                  secret:
+                    type: string
+                    description: The decryption key that must be passed in all other API calls related to the session.
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+  /session:
+    get:
+      summary: Get variables in an interview
+      description: Provides a JSON representation of the current interview dictionary.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+        - name: i
+          in: query
+          description: The filename of the interview.
+          required: true
+          schema:
+            type: string
+        - name: session
+          in: query
+          description: The session ID of the interview.
+          required: true
+          schema:
+            type: string
+        - name: secret
+          in: query
+          description: The encryption key to use with the interview.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+    post:
+      summary: Set variables in an interview
+      description: Sets variables in the interview dictionary and returns a JSON representation of the current question in the interview.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+                i:
+                  type: string
+                  description: The filename of the interview.
+                session:
+                  type: string
+                  description: The session ID of the interview.
+                secret:
+                  type: string
+                  description: The encryption key to use with the interview.
+                variables:
+                  type: object
+                  description: A JSON object where the keys are variable names and the values are the values those variables should have.
+                raw:
+                  type: integer
+                  description: If set to 0, then no attempt will be made to identify and convert dates and DAObjects that appear in the variables.
+                question_name:
+                  type: string
+                  description: The name of a question.
+                question:
+                  type: integer
+                  description: If set to 0, then the interview is not evaluated after the variables are set.
+                advance_progress_meter:
+                  type: integer
+                  description: If set to 1, then the progress meter will be advanced.
+                overwrite:
+                  type: integer
+                  description: If set to 1, then when the interview answers are saved, they will overwrite the previous interview answers.
+                delete_variables:
+                  type: array
+                  items:
+                    type: string
+                  description: A JSON array in which the items are names of variables to be deleted.
+                file_variables:
+                  type: object
+                  description: A JSON representation of an object with key/value pairs that associate the names of file uploads with the variable name you want to use.
+                event_list:
+                  type: array
+                  items:
+                    type: string
+                  description: A JSON array of variable names that triggered the question to which you are responding.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+    delete:
+      summary: Delete an interview session
+      description: Deletes a single interview session.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+        - name: i
+          in: query
+          description: The filename of the interview.
+          required: true
+          schema:
+            type: string
+        - name: session
+          in: query
+          description: The session ID of the interview.
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        active:
+          type: boolean
+          description: Whether the user is active.
+        country:
+          type: string
+          description: User's country code.
+        email:
+          type: string
+          description: User's e-mail address.
+        first_name:
+          type: string
+          description: User's first name.
+        id:
+          type: integer
+          description: The integer ID of the user.
+        language:
+          type: string
+          description: User's language code.
+        last_name:
+          type: string
+          description: User's last name.
+        organization:
+          type: string
+          description: User's organization.
+        privileges:
+          type: array
+          items:
+            type: string
+          description: List of the user's privileges (e.g., 'admin', 'developer').
+        subdivisionfirst:
+          type: string
+          description: User's state.
+        subdivisionsecond:
+          type: string
+          description: User's county.
+        subdivisionthird:
+          type: string
+          description: User's municipality.
+        timezone:
+          type: string
+          description: User's time zone (e.g. 'America/New_York').
+    Interview:
+      type: object
+      properties:
+        email:
+          type: string
+          description: The e-mail address of the user.
+        filename:
+          type: string
+          description: The filename of the interview.
+        metadata:
+          type: object
+          description: An object representing the metadata of the interview.
+        modtime:
+          type: string
+          description: The last time the interview dictionary was modified, expressed as a local time.
+        session:
+          type: string
+          description: The session ID of the session.
+        starttime:
+          type: string
+          description: The time the interview was started, expressed as a local time.
+        subtitle:
+          type: string
+          description: The subtitle of the interview, or null.
+        tags:
+          type: array
+          items:
+            type: string
+        temp_user_id:
+          type: integer
+          description: The user ID of the temporary user, if the user was not logged in, or null if the user was logged in.
+        title:
+          type: string
+          description: The title of the interview.
+        user_id:
+          type: integer
+          description: The user ID of the user, or null if the user was not logged in.
+        utc_modtime:
+          type: string
+          description: The last time the interview dictionary was modified, in UTC format.
+        utc_starttime:
+          type: string
+          description: The time the interview was started, in UTC format.
+        valid:
+          type: boolean
+          description: Whether all of the information about the interview could be read.
+        dict:
+          type: object
+          description: The interview answers as a dictionary. Only present if include_dictionary is 1.
+        encrypted:
+          type: boolean
+          description: Whether the interview answers are encrypted on the server. Only present if include_dictionary is 1.
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
