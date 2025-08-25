@@ -135,6 +135,77 @@ paths:
           description: Access Denied
         '404':
           description: Not Found
+    post:
+      summary: Install or update a package
+      description: Installs or updates a package from a zip file, a GitHub URL, or PyPI.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                  description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+                zip:
+                  type: string
+                  description: A zip file of a docassemble package.
+                  format: binary
+                github_url:
+                  type: string
+                  description: The URL of a GitHub repository.
+                branch:
+                  type: string
+                  description: The branch of the GitHub repository to use.
+                pip:
+                  type: string
+                  description: The name of a package on PyPI.
+                update:
+                  type: string
+                  description: The name of a package to update.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  task_id:
+                    type: string
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
+    delete:
+      summary: Delete a package
+      description: Deletes a package from the docassemble server.
+      parameters:
+        - name: key
+          in: query
+          description: The API key (optional if the API key is passed in an X-API-Key header or cookie or as a bearer token).
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: The name of the package.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  task_id:
+                    type: string
+        '400':
+          description: Bad Request
+        '403':
+          description: Access Denied
   /package/update:
     post:
       summary: Update a package
@@ -162,7 +233,8 @@ paths:
                   description: The PyPI package name.
                 zip:
                   type: string
-                  description: URL to a zip file.
+                  description: A zip file.
+                  format: binary
       responses:
         '200':
           description: OK
