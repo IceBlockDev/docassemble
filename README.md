@@ -1,3 +1,5 @@
+[![Build Status](https://github.com/jhpyle/docassemble/actions/workflows/main.yml/badge.svg)](https://github.com/jhpyle/docassemble/actions/workflows/main.yml)
+
 See the [docassemble web site] for a description of **docassemble**
 and installation instructions.
 
